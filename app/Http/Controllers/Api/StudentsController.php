@@ -8,6 +8,8 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+use function PHPUnit\Framework\isNull;
+
 class StudentsController extends Controller
 {
     /**
@@ -15,9 +17,9 @@ class StudentsController extends Controller
      */
     public function index()
     {
-        $students = Student::all();
-        return response([ 'employees' =>
-        Student::collection($students),
+        $students = Student::paginate(10);
+        return response([ 'student' =>
+        $students,
         'message' => 'Successful'], 200);
     }
 
@@ -32,7 +34,8 @@ class StudentsController extends Controller
         $validator = Validator::make($data, [
             'student_name' => 'required|max:255',
             'student_email' => 'email|required',
-            'address' => 'required|max:255'
+            'address' => 'required|max:255',
+            'study_course' => 'required|max:255'
         ]);
 
         if($validator->fails()){
@@ -42,7 +45,7 @@ class StudentsController extends Controller
 
         $students = Student::create($data);
 
-        return response([ 'employee' => new
+        return response([ 'student' => new
         StudentsResource($students),
         'message' => 'Success'], 200);
     }
@@ -54,6 +57,13 @@ class StudentsController extends Controller
     {
         return response([ 'student' => new
         StudentsResource($student), 'message' => 'Success'], 200);
+    }
+
+    public function search(Request $request)
+    {
+        $students = Student::where('student_email', $request->student_email)
+                    ->orWhere('student_name', $request->student_name)->get();
+        return response([ 'student' => $students, 'message' => 'Success'], 200);
     }
 
     /**

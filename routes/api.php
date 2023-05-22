@@ -16,9 +16,10 @@ use Illuminate\Support\Facades\Route;
 Route::namespace('App\Http\Controllers\Api')->group(function (){
     Route::post('/register', 'Auth\AuthController@register');
     Route::post('/login', 'Auth\AuthController@login');
-    Route::post('/logout', 'Auth\AuthController@logout');
 
     Route::group(['middleware' => 'auth:api'], function(){
         Route::Resource('/students', 'StudentsController');
+        Route::post('/students/search', 'StudentsController@search');
+        Route::post('/logout', 'Auth\AuthController@logout');
     });
 });
