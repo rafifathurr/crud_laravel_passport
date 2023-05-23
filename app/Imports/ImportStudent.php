@@ -14,6 +14,7 @@ class ImportStudent implements ToModel
     */
     public function model(array $row)
     {
+        // CUSTOMIZATION ROW ON EXCEL
         return new Student([
             'student_name' => $row[0],
             'student_email' => $row[1],

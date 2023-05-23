@@ -30,10 +30,13 @@ class StudentsController extends Controller
      */
     public function store(Request $request)
     {
+        // CHECK FILE
         if($request->hasFile('file')){
+            // IMPORT EXCEL AND DIRECT TO EXCEL IMPORT
             Excel::import(new ImportStudent,
             $request->file('file')->store('files'));
         }else{
+            // INPUT MANUAL
             $data = $request->all();
             $data['created_at'] = date('Y-m-d H:i:s');
 
@@ -66,7 +69,7 @@ class StudentsController extends Controller
 
     public function search(Request $request)
     {
-
+        // SEARCH WHERE LIKE TEXT OR STRING
         $students = Student::where('student_name', 'like', '%'.$request->search.'%')
                     ->orwhere('student_email',  'like', '%'.$request->search.'%')->paginate(10);
         

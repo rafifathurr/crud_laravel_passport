@@ -15,6 +15,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try{
+            // CHECK VALIDATION
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
                 'email' => 'required|email',
@@ -22,6 +23,7 @@ class AuthController extends Controller
                 'c_password' => 'required|same:password',
             ]);
     
+            // RETURN FAILS VALIDATION
             if ($validator->fails()) {
                 return response()->json(['error'=>$validator->errors()], 401);
             }
@@ -40,15 +42,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // CHECK VALIDATION
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
+        // RETURN FAILS VALIDATION
         if ($validator->fails()) {
             return response()->json(['error'=>$validator->errors()], 401);
         }
 
+        // DO LOGIN
         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
             $user = Auth::user();
             $success = $user;
@@ -62,6 +67,7 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request){
+        // CHECKING USER
         $user = Auth::user();
         $user->token()->revoke();
 		return response()->json(['message' => 'Successfully logged out']);
