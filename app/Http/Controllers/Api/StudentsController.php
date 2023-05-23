@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentsResource;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Student;
+use App\Imports\ImportStudent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,26 +30,29 @@ class StudentsController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
-        $data['created_at'] = date('Y-m-d H:i:s');
+        if($request->hasFile('file')){
+            Excel::import(new ImportStudent,
+            $request->file('file')->store('files'));
+        }else{
+            $data = $request->all();
+            $data['created_at'] = date('Y-m-d H:i:s');
 
-        $validator = Validator::make($data, [
-            'student_name' => 'required|max:255',
-            'student_email' => 'email|required',
-            'address' => 'required|max:255',
-            'study_course' => 'required|max:255'
-        ]);
+            $validator = Validator::make($data, [
+                'student_name' => 'required|max:255',
+                'student_email' => 'email|required',
+                'address' => 'required|max:255',
+                'study_course' => 'required|max:255'
+            ]);
 
-        if($validator->fails()){
-            return response(['error' => $validator->errors(),
-            'Validation Error']);
+            if($validator->fails()){
+                return response(['error' => $validator->errors(),
+                'Validation Error']);
+            }
+
+            $students = Student::create($data);
         }
 
-        $students = Student::create($data);
-
-        return response([ 'student' => new
-        StudentsResource($students),
-        'message' => 'Success'], 200);
+        return response([ 'messages' => 'Store Success!'], 200);
     }
 
     /**
@@ -61,8 +66,10 @@ class StudentsController extends Controller
 
     public function search(Request $request)
     {
-        $students = Student::where('student_email', $request->student_email)
-                    ->orWhere('student_name', $request->student_name)->get();
+
+        $students = Student::where('student_name', 'like', '%'.$request->search.'%')
+                    ->orwhere('student_email',  'like', '%'.$request->search.'%')->paginate(10);
+        
         return response([ 'student' => $students, 'message' => 'Success'], 200);
     }
 

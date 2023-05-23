@@ -12,7 +12,6 @@ class Student extends Model
     ];
 
     protected $hidden = [
-        'id',
         'student_email',
         'study_course',
         'created_at',
